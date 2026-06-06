@@ -10,7 +10,6 @@ MajorMatch adalah aplikasi rekomendasi jurusan berbasis forward chaining yang be
 - Daftar jurusan dan kampus Indonesia.
 - Tabel basis aturan forward chaining.
 - Riwayat Test terbuka menggunakan `localStorage`.
-- Tidak membutuhkan database, server, atau admin panel.
 
 ## Teknologi
 
