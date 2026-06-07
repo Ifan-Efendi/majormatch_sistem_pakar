@@ -721,6 +721,12 @@ const renderResult = () => {
         : []),
     majorData: byMajorCode[item.major],
   }));
+  const selectedFactsBlock = (className = "") => `
+    <div class="selected-facts ${className}">
+      <h2>Minat yang kamu pilih</h2>
+      <div class="chips">${result.selected.map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`).join("")}</div>
+    </div>
+  `;
 
   renderLayout(`
     <section class="section">
@@ -738,31 +744,34 @@ const renderResult = () => {
       </div>
       <div class="container result-grid">
         ${
-          resultRules.map(resultCard).join("") ||
+          resultRules
+            .map((item, index) =>
+              resultCard(
+                item,
+                index === 0 ? selectedFactsBlock("selected-facts-inline") : "",
+              ),
+            )
+            .join("") ||
           `
           <div class="card empty-state">
             <h2>Belum ada jurusan terpilih</h2>
             <p>Minat yang dipilih belum memenuhi pola rekomendasi. Silakan kembali dan pilih beberapa minat tambahan yang memang sesuai dengan dirimu.</p>
             <a class="btn btn-dark" href="#test">Pilih Minat Tambahan</a>
           </div>
+          ${selectedFactsBlock("card")}
         `
         }
-      </div>
-      <div class="container">
-        <div class="card selected-facts">
-          <h2>Minat yang kamu pilih</h2>
-          <div class="chips">${result.selected.map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`).join("")}</div>
-        </div>
       </div>
     </section>
   `);
 };
 
-const resultCard = (result) => `
+const resultCard = (result, selectedFacts = "") => `
   <article class="card result-card">
     <div class="result-panel result-main">
       <h2 class="result-summary-title">Jurusan terpilih</h2>
       <strong class="result-major-name">${result.majorData.name}</strong>
+      ${selectedFacts}
       <span class="rule-badge">Berdasarkan pola minat: ${result.rules
         .map((rule) => rule.name)
         .join(", ")}</span>
