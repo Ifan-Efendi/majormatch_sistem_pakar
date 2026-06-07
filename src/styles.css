@@ -638,6 +638,12 @@ h3 {
   margin-bottom: 8px;
 }
 
+.home-section-title {
+  font-size: 1.26rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .section-head p {
   color: var(--muted);
   font-size: 0.94rem;
@@ -1991,11 +1997,6 @@ th {
   display: block;
   font-size: 1.05rem;
   margin-bottom: 5px;
-}
-
-.loading-card p {
-  color: var(--muted);
-  margin: 0;
 }
 
 @keyframes pageEnter {

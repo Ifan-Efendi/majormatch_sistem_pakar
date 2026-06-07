@@ -94,10 +94,7 @@ const isActiveNav = (route) =>
 const navLink = (route, label) =>
   `<a class="nav-link ${isActiveNav(route) ? "active" : ""}" href="#${route}">${label}</a>`;
 
-const showLoading = (
-  title = "Menganalisis jawaban",
-  message = "MajorMatch sedang mencocokkan minatmu dengan basis aturan.",
-) => {
+const showLoading = (title = "Menganalisis jawaban") => {
   document.querySelector("#loadingOverlay")?.remove();
   document.body.insertAdjacentHTML(
     "beforeend",
@@ -108,7 +105,6 @@ const showLoading = (
           <span>M</span>
         </div>
         <strong>${title}</strong>
-        <p>${message}</p>
       </div>
     </div>
   `,
@@ -389,7 +385,7 @@ const renderHome = () =>
   <section class="section">
     <div class="container section-head">
       <div>
-        <h2>Pilihan jurusan</h2>
+          <h2 class="home-section-title">PILIHAN JURUSAN</h2>
         <p>Beberapa pilihan jurusan yang dapat kamu eksplorasi.</p>
       </div>
       <a href="#jurusan">Lihat semua</a>
@@ -402,7 +398,7 @@ const renderHome = () =>
   <section class="section soft">
     <div class="container section-head">
       <div>
-        <h2>Daftar kampus</h2>
+          <h2 class="home-section-title">DAFTAR KAMPUS</h2>
         <p>Beberapa kampus yang tersedia di MajorMatch.</p>
       </div>
       <a href="#kampus">Lihat semua</a>
