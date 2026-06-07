@@ -1609,9 +1609,10 @@ select:focus {
 }
 
 .result-card h2 {
-  font-size: 1.35rem;
-  line-height: 1.22;
-  margin-bottom: 12px;
+  font-size: 1.6rem;
+  letter-spacing: 0;
+  line-height: 1.18;
+  margin-bottom: 4px;
 }
 
 .result-card p {
@@ -1629,7 +1630,31 @@ select:focus {
 }
 
 .result-main {
-  background: linear-gradient(135deg, #ffffff, #e4f2ff);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(218, 236, 255, 0.94)),
+    #e4f2ff;
+  border-color: #93c5fd;
+  box-shadow: 0 14px 30px rgba(0, 97, 255, 0.12);
+  min-height: 170px;
+  padding: 18px;
+}
+
+.result-main .mini-label {
+  color: #355070;
+  font-size: 0.78rem;
+}
+
+.result-kicker {
+  align-self: start;
+  background: #0f172a;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 850;
+  justify-self: start;
+  letter-spacing: 0.02em;
+  padding: 5px 9px;
 }
 
 .rule-badge {
@@ -1640,6 +1665,7 @@ select:focus {
   display: inline-flex;
   font-size: 0.78rem;
   font-weight: 800;
+  justify-self: start;
   line-height: 1.35;
   padding: 6px 10px;
 }
@@ -1827,23 +1853,43 @@ th {
 }
 
 .loading-card {
-  width: min(360px, calc(100% - 36px));
+  width: min(390px, calc(100% - 36px));
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: #fff;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #ffffff, #f3f8ff),
+    #fff;
   box-shadow: var(--shadow-hover);
-  padding: 24px;
+  padding: 26px 24px;
   text-align: center;
 }
 
 .loader-ring {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #e0e7f1;
+  width: 64px;
+  height: 64px;
+  border: 4px solid #dbeafe;
   border-top-color: var(--brand);
+  border-right-color: var(--secondary);
   border-radius: 50%;
-  margin: 0 auto 16px;
-  animation: spin 0.8s linear infinite;
+  display: grid;
+  margin: 0 auto 18px;
+  place-items: center;
+  position: relative;
+  animation: spin 1s linear infinite;
+}
+
+.loader-ring span {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--brand), var(--secondary));
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 1.38rem;
+  font-weight: 900;
+  animation: spin 1s linear infinite reverse;
 }
 
 .loading-card strong {
@@ -2222,6 +2268,11 @@ th {
 
   .chips {
     justify-content: center;
+  }
+
+  .result-kicker,
+  .rule-badge {
+    justify-self: center;
   }
 
   .profile-fields {

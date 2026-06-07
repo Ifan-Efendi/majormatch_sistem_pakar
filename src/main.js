@@ -103,7 +103,9 @@ const showLoading = (
     `
     <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite">
       <div class="loading-card">
-        <div class="loader-ring"></div>
+        <div class="loader-ring" aria-hidden="true">
+          <span>M</span>
+        </div>
         <strong>${title}</strong>
         <p>${message}</p>
       </div>
@@ -694,7 +696,7 @@ const handleTestSubmit = (event) => {
     sessionStorage.setItem("majormatch-current-result", JSON.stringify(entry));
     hideLoading();
     setRoute("hasil");
-  }, 950);
+  }, 4000);
 };
 
 const renderResult = () => {
@@ -771,7 +773,8 @@ const renderResult = () => {
 const resultCard = (result) => `
   <article class="card result-card">
     <div class="result-panel result-main">
-      <div class="mini-label">Jurusan terpilih</div>
+      <div class="result-kicker">Pilihan jurusan</div>
+      <div class="mini-label">Jurusan terpilih untukmu</div>
       <h2>${result.majorData.name}</h2>
       <span class="rule-badge">Berdasarkan pola minat: ${result.rules
         .map((rule) => rule.name)
