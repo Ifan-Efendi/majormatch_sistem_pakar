@@ -696,7 +696,7 @@ const handleTestSubmit = (event) => {
     sessionStorage.setItem("majormatch-current-result", JSON.stringify(entry));
     hideLoading();
     setRoute("hasil");
-  }, 4000);
+  }, 3000);
 };
 
 const renderResult = () => {
