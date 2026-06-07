@@ -4,6 +4,7 @@ import { campuses, indicators, majors, rules } from "./data.js";
 const app = document.querySelector("#app");
 const historyKey = "majormatch-history";
 const profileKey = "majormatch-profile";
+const minimumSelectedInterests = 4;
 
 const groups = indicators.reduce((result, indicator) => {
   result[indicator.group] = result[indicator.group] || [];
@@ -423,7 +424,7 @@ const infoCard = (number, title, body) => `
 const majorCard = (major) => {
   const campusList = getCampusesForMajor(major.code).slice(0, 3);
   return `
-    <article class="card listing-card">
+    <article class="card listing-card major-card">
       <h3>${major.name}</h3>
       <p>${major.description}</p>
       <div class="mini-label">Rekomendasi kampus:</div>
@@ -442,19 +443,12 @@ const renderTest = () => {
     <section class="section test-page">
       <div class="container test-hero">
         <div>
-          <span class="eyebrow">Test Jurusan</span>
           <h1>Mulai Test</h1>
           <p>Isi data singkat sebelum masuk ke test minat.</p>
         </div>
       </div>
       <form class="container assessment-form profile-only" id="profileForm">
         <section class="card form-card profile-card">
-          <div class="form-card-top">
-            <div>
-              <span class="mini-kicker">Profil</span>
-              <h2>Data singkat</h2>
-            </div>
-          </div>
           <div class="profile-fields">
             <label>Nama
               <input name="name" type="text" placeholder="Nama kamu" value="${escapeHtml(profile.name || "")}" required>
@@ -494,20 +488,12 @@ const renderInterestTest = () => {
 
   renderLayout(`
     <section class="section test-page">
-      <div class="container test-hero">
-        <div>
-          <span class="eyebrow">Test Minat</span>
-          <h1>Pilih minatmu</h1>
-          <p>Centang pernyataan yang benar-benar sesuai dengan minat dan kebiasaanmu.</p>
-        </div>
-      </div>
       <form class="container assessment-form interest-only" id="testForm">
         <section class="card test-card assessment-card">
           <div class="test-intro">
             <div>
-              <span class="mini-kicker">Pilih Minatmu</span>
-              <h2>Apa saja minat dan kemampuanmu?</h2>
-              <p>Centang yang sesuai saja. Tidak semua pilihan harus dipilih.</p>
+              <h2>Masukkan minat yang sesuai dengan dirimu</h2>
+              <p>Pilih pernyataan yang paling menggambarkan minat dan kemampuanmu.</p>
             </div>
             <div class="selection-pill">
               <strong id="selectedCount">0</strong>
@@ -666,8 +652,10 @@ const handleTestSubmit = (event) => {
     return;
   }
 
-  if (!selected.length) {
-    alert("Silakan pilih minimal satu pernyataan yang sesuai dengan dirimu.");
+  if (selected.length < minimumSelectedInterests) {
+    alert(
+      `Silakan pilih minimal ${minimumSelectedInterests} pernyataan yang sesuai dengan dirimu.`,
+    );
     return;
   }
 
@@ -741,18 +729,16 @@ const renderResult = () => {
   renderLayout(`
     <section class="section">
       <div class="container section-head">
-        <div>
-          <span class="eyebrow">Hasil Rekomendasi</span>
-          <h1>Hasil untuk ${escapeHtml(result.name)}</h1>
-          <p>${escapeHtml(result.level)}${result.city ? ` - ${escapeHtml(result.city)}` : ""} - ${result.selected.length} minat dipilih</p>
+        <div class="result-heading result-summary-card">
+          <h2 class="result-summary-title">Rekomendasi untuk</h2>
+          <strong class="result-user-name">${escapeHtml(result.name)}</strong>
+          <div class="result-meta">
+            <span>${escapeHtml(result.level)}</span>
+            ${result.city ? `<span>${escapeHtml(result.city)}</span>` : ""}
+            <span>${result.selected.length} minat dipilih</span>
+          </div>
         </div>
         <a class="btn btn-dark" href="#test">Test Lagi</a>
-      </div>
-      <div class="container">
-        <div class="card selected-facts">
-          <h2>Minat yang kamu pilih</h2>
-          <div class="chips">${result.selected.map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`).join("")}</div>
-        </div>
       </div>
       <div class="container result-grid">
         ${
@@ -766,6 +752,12 @@ const renderResult = () => {
         `
         }
       </div>
+      <div class="container">
+        <div class="card selected-facts">
+          <h2>Minat yang kamu pilih</h2>
+          <div class="chips">${result.selected.map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`).join("")}</div>
+        </div>
+      </div>
     </section>
   `);
 };
@@ -773,9 +765,8 @@ const renderResult = () => {
 const resultCard = (result) => `
   <article class="card result-card">
     <div class="result-panel result-main">
-      <div class="result-kicker">Pilihan jurusan</div>
-      <div class="mini-label">Jurusan terpilih untukmu</div>
-      <h2>${result.majorData.name}</h2>
+      <h2 class="result-summary-title">Jurusan terpilih</h2>
+      <strong class="result-major-name">${result.majorData.name}</strong>
       <span class="rule-badge">Berdasarkan pola minat: ${result.rules
         .map((rule) => rule.name)
         .join(", ")}</span>
@@ -812,7 +803,6 @@ const renderMajors = () =>
   <section class="section">
     <div class="container section-head">
       <div>
-        <span class="eyebrow">Daftar Jurusan</span>
         <h1>Daftar jurusan</h1>
         <p>Pilih jurusan untuk melihat detail dan kampus terkait.</p>
       </div>
@@ -876,7 +866,6 @@ const renderCampuses = () =>
   <section class="section">
     <div class="container section-head">
       <div>
-        <span class="eyebrow">Kampus Indonesia</span>
         <h1>Daftar kampus</h1>
         <p>Referensi kampus untuk jurusan yang tersedia.</p>
       </div>
@@ -932,7 +921,6 @@ const renderAbout = () =>
   <section class="section">
     <div class="container section-head">
       <div>
-        <span class="eyebrow">Tentang MajorMatch</span>
         <h1>Tentang MajorMatch</h1>
         <p>Aplikasi sistem pakar sederhana untuk rekomendasi jurusan.</p>
       </div>
@@ -1038,7 +1026,6 @@ const renderHistory = () => {
     <section class="section">
       <div class="container section-head">
         <div>
-          <span class="eyebrow">Riwayat Test</span>
           <h1>Riwayat Test</h1>
           <p>Lihat kembali hasil sebelumnya dan bandingkan perubahan minatmu.</p>
         </div>
