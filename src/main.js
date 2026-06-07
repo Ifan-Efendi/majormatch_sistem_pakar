@@ -4,7 +4,6 @@ import { campuses, indicators, majors, rules } from "./data.js";
 const app = document.querySelector("#app");
 const historyKey = "majormatch-history";
 const profileKey = "majormatch-profile";
-const minimumSelectedInterests = 4;
 
 const groups = indicators.reduce((result, indicator) => {
   result[indicator.group] = result[indicator.group] || [];
@@ -482,6 +481,11 @@ const renderInterestTest = () => {
     return;
   }
 
+  const currentResult = JSON.parse(
+    sessionStorage.getItem("majormatch-current-result") || "null",
+  );
+  const previousSelected = new Set(currentResult?.selected || []);
+
   renderLayout(`
     <section class="section test-page">
       <form class="container assessment-form interest-only" id="testForm">
@@ -510,7 +514,7 @@ const renderInterestTest = () => {
                     const statement = getIndicatorStatement(indicator);
                     return `
                   <label class="indicator-option fact-option">
-                    <input type="checkbox" name="indicators" value="${indicator.code}">
+                    <input type="checkbox" name="indicators" value="${indicator.code}" ${previousSelected.has(indicator.code) ? "checked" : ""}>
                     <span class="fact-copy">
                       <strong>${statement.statement}</strong>
                       <small>${statement.detail}</small>
@@ -525,7 +529,7 @@ const renderInterestTest = () => {
             )
             .join("")}
           <div class="form-actions">
-            <button class="btn btn-dark" type="submit">Lihat Hasil Test</button>
+            <button class="btn btn-dark" type="submit">Kirim Jawaban</button>
           </div>
         </section>
       </form>
@@ -648,13 +652,6 @@ const handleTestSubmit = (event) => {
     return;
   }
 
-  if (selected.length < minimumSelectedInterests) {
-    alert(
-      `Silakan pilih minimal ${minimumSelectedInterests} pernyataan yang sesuai dengan dirimu.`,
-    );
-    return;
-  }
-
   const submitButton = testForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   submitButton.textContent = "Memproses...";
@@ -756,7 +753,7 @@ const renderResult = () => {
           <div class="card empty-state">
             <h2>Belum ada jurusan terpilih</h2>
             <p>Minat yang dipilih belum memenuhi pola rekomendasi. Silakan kembali dan pilih beberapa minat tambahan yang memang sesuai dengan dirimu.</p>
-            <a class="btn btn-dark" href="#test">Pilih Minat Tambahan</a>
+            <a class="btn btn-dark" href="#test-minat">Pilih Minat Tambahan</a>
           </div>
           ${selectedFactsBlock("card")}
         `
