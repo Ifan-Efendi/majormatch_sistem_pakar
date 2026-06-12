@@ -344,7 +344,7 @@ const renderHome = () =>
         <h1>Temukan jurusan yang sesuai dengan minatmu.</h1>
         <p class="lead">Ikuti test singkat untuk melihat jurusan terpilih, alasan rekomendasi, prospek, dan kampus terkait.</p>
         <div class="hero-actions">
-          <a class="btn btn-dark" href="#test">Mulai Test</a>
+          <a class="btn btn-primary" href="#test">Mulai Test</a>
           <a class="btn btn-outline" href="#jurusan">Lihat Jurusan</a>
         </div>
       </div>
@@ -356,24 +356,30 @@ const renderHome = () =>
             <strong>MajorMatch</strong>
           </div>
           <div class="phone-screen">
-            <div class="preview-card main-result">
-              <span>Jurusan terpilih</span>
-              <h2>Teknik Informatika</h2>
-              <b class="preview-rule">Berdasarkan pola minat</b>
+            <div class="preview-result">
+              <span class="preview-kicker">Jurusan terpilih</span>
+              <strong class="preview-major">Teknik Informatika</strong>
+              <div class="preview-reason">Fokus pada algoritma, pemrograman, rekayasa perangkat lunak, dan sistem komputasi.</div>
             </div>
-            <div class="preview-card">
-              <span>Minat yang mendukung</span>
-              <div class="preview-tags">
-                <b>Logika</b>
-                <b>Teknologi</b>
-                <b>Problem solving</b>
+            <div class="preview-section">
+              <span class="preview-label">Minat yang mendukung</span>
+              <div class="preview-chips">
+                <span>Suka logika</span>
+                <span>Tertarik teknologi</span>
+                <span>Suka pemrograman</span>
               </div>
             </div>
-            <div class="preview-card campus-preview">
-              <span>Kampus terkait</span>
-              <strong>UI</strong>
-              <strong>ITB</strong>
-              <strong>UGM</strong>
+            <div class="preview-section">
+              <span class="preview-label">Prospek karier</span>
+              <div class="preview-reason">Software engineer, backend developer, mobile developer.</div>
+            </div>
+            <div class="preview-section">
+              <span class="preview-label">Kampus terkait</span>
+              <div class="preview-chips">
+                <span>ITB</span>
+                <span>UI</span>
+                <span>UGM</span>
+              </div>
             </div>
           </div>
         </div>
@@ -389,7 +395,7 @@ const renderHome = () =>
       </div>
       <a href="#jurusan">Lihat semua</a>
     </div>
-    <div class="container card-grid four">
+    <div class="container card-grid three">
       ${majors.slice(0, 4).map(majorCard).join("")}
     </div>
   </section>
@@ -408,31 +414,42 @@ const renderHome = () =>
   </section>
 `);
 
-const infoCard = (number, title, body) => `
-  <div class="card info">
-    <span class="number">${number}</span>
+const infoCard = (icon, title, body) => `
+  <div class="card about-card">
+    <div class="about-icon">${icon}</div>
     <h3>${title}</h3>
     <p>${body}</p>
   </div>
 `;
 
 const majorCard = (major) => {
-  const campusList = getCampusesForMajor(major.code).slice(0, 3);
+  const campusCount = getCampusesForMajor(major.code).length;
+  const careerShort = major.careers.split(",").slice(0, 3).join(",");
   return `
     <article class="card listing-card major-card">
-      <h3>${major.name}</h3>
-      <p>${major.description}</p>
-      <div class="mini-label">Rekomendasi kampus:</div>
-      <div class="chips">
-        ${campusList.map((campus) => `<span>${campus.name}</span>`).join("") || "<small>Belum ada data kampus.</small>"}
+      <div class="mc-head">
+        <h3 class="mc-title">${major.name}</h3>
       </div>
-      <a class="text-link" href="#jurusan-${major.code}">Lihat Detail</a>
+      <p class="mc-desc">${major.description}</p>
+      <div class="mc-meta">
+        <div class="mc-meta-line">
+          <svg class="mc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg>
+          <span>${campusCount} kampus tersedia</span>
+        </div>
+        <div class="mc-meta-line">
+          <svg class="mc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          <span>${careerShort}</span>
+        </div>
+      </div>
+      <a class="mc-link" href="#jurusan-${major.code}">Lihat Detail</a>
     </article>
   `;
 };
 
 const renderTest = () => {
-  const profile = getProfile() || {};
+  // Clear previous test data for fresh start
+  sessionStorage.removeItem(profileKey);
+  sessionStorage.removeItem("majormatch-current-result");
 
   renderLayout(`
     <section class="section test-page">
@@ -446,18 +463,18 @@ const renderTest = () => {
         <section class="card form-card profile-card">
           <div class="profile-fields">
             <label>Nama
-              <input name="name" type="text" placeholder="Nama kamu" value="${escapeHtml(profile.name || "")}" required>
+              <input name="name" type="text" placeholder="Nama kamu" required>
             </label>
             <label>Jenjang
               <select name="level" required>
                 <option value="">Pilih jenjang</option>
-                <option ${profile.level === "SMA" ? "selected" : ""}>SMA</option>
-                <option ${profile.level === "SMK" ? "selected" : ""}>SMK</option>
-                <option ${profile.level === "MA" ? "selected" : ""}>MA</option>
+                <option>SMA</option>
+                <option>SMK</option>
+                <option>MA</option>
               </select>
             </label>
             <label>Asal kota
-              <input name="city" type="text" placeholder="Contoh: Bandung" value="${escapeHtml(profile.city || "")}" required>
+              <input name="city" type="text" placeholder="Contoh: Bandung" required>
             </label>
           </div>
         </section>
@@ -673,7 +690,9 @@ const handleTestSubmit = (event) => {
       })),
     };
 
-    saveHistory(entry);
+    if (entry.results.length > 0) {
+      saveHistory(entry);
+    }
     sessionStorage.setItem("majormatch-current-result", JSON.stringify(entry));
     hideLoading();
     setRoute("hasil");
@@ -720,24 +739,26 @@ const renderResult = () => {
   }));
   const selectedFactsBlock = (className = "") => `
     <div class="selected-facts ${className}">
-      <h2>Minat yang kamu pilih</h2>
-      <div class="chips">${result.selected.map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`).join("")}</div>
+      <div class="mini-label">Minat yang kamu pilih</div>
+      <div class="chips result-chips">${result.selected.map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`).join("")}</div>
     </div>
   `;
 
   renderLayout(`
     <section class="section">
-      <div class="container section-head">
-        <div class="result-heading result-summary-card">
-          <h2 class="result-summary-title">Rekomendasi untuk</h2>
-          <strong class="result-user-name">${escapeHtml(result.name)}</strong>
-          <div class="result-meta">
-            <span>${escapeHtml(result.level)}</span>
-            ${result.city ? `<span>${escapeHtml(result.city)}</span>` : ""}
-            <span>${result.selected.length} minat dipilih</span>
+      <div class="container">
+        <div class="card result-header">
+          <div>
+            <div class="mini-label">Rekomendasi untuk</div>
+            <strong class="result-user-name">${escapeHtml(result.name)}</strong>
+            <div class="result-meta">
+              <span>${escapeHtml(result.level)}</span>
+              ${result.city ? `<span>${escapeHtml(result.city)}</span>` : ""}
+              <span>${result.selected.length} Minat Dipilih</span>
+            </div>
           </div>
+          <a class="btn btn-dark" href="#test">Test Lagi</a>
         </div>
-        <a class="btn btn-dark" href="#test">Test Lagi</a>
       </div>
       <div class="container result-grid">
         ${
@@ -765,34 +786,24 @@ const renderResult = () => {
 
 const resultCard = (result, selectedFacts = "") => `
   <article class="card result-card">
-    <div class="result-panel result-main">
-      <h2 class="result-summary-title">Jurusan terpilih</h2>
+    <div class="result-section">
+      <span class="result-kicker">Jurusan terpilih</span>
       <strong class="result-major-name">${result.majorData.name}</strong>
-      ${selectedFacts}
-      <span class="rule-badge">Berdasarkan pola minat: ${result.rules
-        .map((rule) => rule.name)
-        .join(", ")}</span>
     </div>
-    <div class="result-panel">
+    ${selectedFacts}
+    <div class="result-section">
       <div class="mini-label">Minat yang mendukung</div>
-      <div class="chips">${result.matched
+      <div class="chips result-chips">${result.matched
         .map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`)
         .join("")}</div>
     </div>
-    <div class="result-panel">
-      <div class="mini-label">Alasan rekomendasi</div>
-      <p>${result.majorData.description}</p>
-      ${result.rules
-        .map((rule) => `<div class="reason">${rule.conclusion}</div>`)
-        .join("")}
-    </div>
-    <div class="result-panel">
+    <div class="result-section">
       <div class="mini-label">Prospek karier</div>
-      <p>${result.majorData.careers}</p>
+      <div class="reason">${result.majorData.careers}</div>
     </div>
-    <div class="result-panel">
+    <div class="result-section">
       <div class="mini-label">Kampus terkait</div>
-      <div class="chips">${getCampusesForMajor(result.major)
+      <div class="chips result-chips">${getCampusesForMajor(result.major)
         .slice(0, 4)
         .map((campus) => `<span>${campus.name}</span>`)
         .join("")}</div>
@@ -827,26 +838,23 @@ const renderMajorDetail = (majorCode) => {
 
   renderLayout(`
     <section class="section">
-      <div class="container detail-layout single">
-        <article class="detail-main">
-          <span class="eyebrow">Detail Jurusan</span>
-          <h1>${major.name}</h1>
-          <p class="lead">${major.description}</p>
-          <div class="detail-block">
-            <h2>Prospek karier</h2>
-            <p>${major.careers}</p>
+      <div class="container">
+        <article class="card result-card">
+          <div class="result-section">
+            <span class="result-kicker">Detail Jurusan</span>
+            <strong class="result-major-name">${major.name}</strong>
+            <div class="reason">${major.description}</div>
           </div>
-          <div class="detail-block">
-            <h2>Pola minat</h2>
-            <div class="rule-stack">
-              ${relatedRules.map(ruleSummary).join("")}
-            </div>
+          <div class="result-section">
+            <div class="mini-label">Prospek karier</div>
+            <div class="reason">${major.careers}</div>
           </div>
-          <div class="detail-block">
-            <h2>Kampus terkait</h2>
-            <div class="card-grid two">
-              ${relatedCampuses.map(campusCard).join("")}
-            </div>
+          <div class="result-section">
+            <div class="mini-label">Kampus terkait</div>
+            <div class="chips result-chips">${relatedCampuses
+              .slice(0, 4)
+              .map((campus) => `<span>${campus.name}</span>`)
+              .join("")}</div>
           </div>
         </article>
       </div>
@@ -854,14 +862,27 @@ const renderMajorDetail = (majorCode) => {
   `);
 };
 
-const campusCard = (campus) => `
-  <article class="card campus listing-card">
-    <span class="tag">${campus.type}</span>
-    <h3>${campus.name}</h3>
-    <p>${campus.city}, ${campus.province}</p>
-    <a class="text-link" href="${campus.website}" target="_blank" rel="noopener">Website Kampus</a>
-  </article>
-`;
+const campusCard = (campus) => {
+  const typeLabel = campus.type === "PTN" ? "Perguruan Tinggi Negeri" : "Perguruan Tinggi Swasta";
+  return `
+    <article class="card campus-card">
+      <div class="mc-head">
+        <h3 class="mc-title">${campus.name}</h3>
+      </div>
+      <div class="mc-meta">
+        <div class="mc-meta-line">
+          <svg class="mc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 017 7c0 5-7 13-7 13S5 14 5 9a7 7 0 017-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <span>${campus.city}, ${campus.province}</span>
+        </div>
+        <div class="mc-meta-line">
+          <svg class="mc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg>
+          <span>${typeLabel}</span>
+        </div>
+      </div>
+      <a class="mc-link" href="${campus.website}" target="_blank" rel="noopener">Website Kampus</a>
+    </article>
+  `;
+};
 
 const renderCampuses = () =>
   renderLayout(`
@@ -876,16 +897,21 @@ const renderCampuses = () =>
       ${campuses
         .map(
           (campus) => `
-        <article class="card campus listing-card">
-          <span class="tag">${campus.type}</span>
-          <h3>${campus.name}</h3>
-          <p>${campus.city}, ${campus.province}</p>
-          <div class="mini-label">Jurusan terkait:</div>
-          <div class="chips">${campus.majors
-            .slice(0, 5)
-            .map((code) => `<span>${byMajorCode[code].name}</span>`)
-            .join("")}</div>
-          <a class="text-link" href="${campus.website}" target="_blank" rel="noopener">Website Kampus</a>
+        <article class="card campus-card">
+          <div class="mc-head">
+            <h3 class="mc-title">${campus.name}</h3>
+          </div>
+          <div class="mc-meta">
+            <div class="mc-meta-line">
+              <svg class="mc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 017 7c0 5-7 13-7 13S5 14 5 9a7 7 0 017-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              <span>${campus.city}, ${campus.province}</span>
+            </div>
+            <div class="mc-meta-line">
+              <svg class="mc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg>
+              <span>${campus.type === "PTN" ? "Perguruan Tinggi Negeri" : "Perguruan Tinggi Swasta"}</span>
+            </div>
+          </div>
+          <a class="mc-link" href="${campus.website}" target="_blank" rel="noopener">Website Kampus</a>
         </article>
       `,
         )
@@ -901,94 +927,90 @@ const ruleSummary = (rule) => `
   </div>
 `;
 
-const usageStepCard = (number, title, body) => `
-  <article class="card info">
-    <span class="number">${number}</span>
-    <h3>${title}</h3>
-    <p>${body}</p>
+const usageStepCard = (number, title) => `
+  <article class="card step-card">
+    <span class="step-number">${number}</span>
+    <div class="step-content">
+      <h3>${title}</h3>
+    </div>
   </article>
 `;
 
 const ifThenRuleCard = (rule) => `
-  <article class="card">
-    <span class="eyebrow">Rule ${rule.code}</span>
-    <h3>IF ${rule.indicators.map((code) => byIndicatorCode[code].name).join(", ")}</h3>
-    <p>THEN rekomendasikan <strong>${byMajorCode[rule.major].name}</strong>.</p>
-    <div class="reason">${rule.conclusion}</div>
+  <article class="tree-rule">
+    <div class="tree-indicators">
+      ${rule.indicators.map((code) => `<span class="tree-node tree-if">${byIndicatorCode[code].name}</span>`).join("")}
+    </div>
+    <div class="tree-lines">
+      <svg class="tree-svg" viewBox="0 0 40 80" preserveAspectRatio="none">
+        <line x1="0" y1="10" x2="40" y2="40" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="0" y1="30" x2="40" y2="40" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="0" y1="50" x2="40" y2="40" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="0" y1="70" x2="40" y2="40" stroke="#94a3b8" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="tree-result">
+      <span class="tree-node tree-then">${byMajorCode[rule.major].name}</span>
+    </div>
   </article>
 `;
 
 const renderAbout = () =>
   renderLayout(`
+  <section class="section about-hero">
+    <div class="container">
+      <div class="hero-about-content">
+        <h1>Tentang MajorMatch</h1>
+        <p class="hero-desc">Aplikasi sistem pakar berbasis website yang membantu siswa menemukan rekomendasi jurusan kuliah berdasarkan minat dan kemampuan dengan menggunakan metode forward chaining.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container section-head">
       <div>
-        <h1>Tentang MajorMatch</h1>
-        <p>Aplikasi sistem pakar sederhana untuk rekomendasi jurusan.</p>
+        <h2>Kenali MajorMatch</h2>
+        <p>Kenali aplikasi dan cara penggunaannya.</p>
       </div>
     </div>
     <div class="container card-grid three about-grid">
-      ${infoCard("1", "Untuk siapa?", "Siswa yang ingin mengenali pilihan jurusan kuliah.")}
-      ${infoCard("2", "Manfaat", "Menampilkan rekomendasi, alasan, prospek, dan kampus terkait.")}
-      ${infoCard("3", "Cara pakai", "Isi profil, pilih minat, lalu lihat hasil rekomendasi.")}
-    </div>
-  </section>
-
-  <section class="section soft">
-    <div class="container section-head">
-      <div>
-        <h2>Cara penggunaan</h2>
-        <p>Alur penggunaan aplikasi.</p>
-      </div>
-    </div>
-    <div class="container card-grid four">
-      ${usageStepCard("1", "Buka Test", "Isi nama, jenjang, dan asal kota.")}
-      ${usageStepCard("2", "Pilih minat", "Centang indikator yang sesuai dengan dirimu.")}
-      ${usageStepCard("3", "Cek rule", "Sistem mencari rule IF-THEN yang seluruh faktanya terpenuhi.")}
-      ${usageStepCard("4", "Lihat hasil", "Baca rule terpenuhi, rekomendasi, alasan, prospek, dan kampus terkait.")}
-    </div>
-  </section>
-
-  <section class="section soft">
-    <div class="container section-head">
-      <div>
-        <h2>Logika Forward Chaining</h2>
-        <p>Sistem mencocokkan fakta dari jawaban pengguna dengan aturan IF-THEN.</p>
-      </div>
-    </div>
-    <div class="container card-grid three">
-      <article class="card">
-        <h3>1. Fakta awal</h3>
-        <p>Fakta awal berasal dari indikator minat yang dipilih.</p>
-      </article>
-      <article class="card">
-        <h3>2. Pencocokan rule</h3>
-        <p>Fakta dibandingkan dengan rule pada basis pengetahuan.</p>
-      </article>
-      <article class="card">
-        <h3>3. Kesimpulan</h3>
-        <p>Jika semua IF pada rule terpenuhi, sistem menampilkan THEN sebagai rekomendasi.</p>
-      </article>
+      ${infoCard("<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 00-3-3.87'/><path d='M16 3.13a4 4 0 010 7.75'/></svg>", "Untuk Siapa?", "Siswa SMA/SMK/MA yang ingin mengenali pilihan jurusan kuliah sesuai minat.")}
+      ${infoCard("<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 11-5.93-9.14'/><path d='M22 4L12 14.01l-3-3'/></svg>", "Manfaat", "Menampilkan rekomendasi jurusan, alasan, prospek karier, dan kampus terkait.")}
+      ${infoCard("<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>", "Cara Penggunaan", "Isi profil singkat, pilih pernyataan minat yang sesuai, lalu sistem akan menganalisis dan menampilkan rekomendasi jurusan.")}
     </div>
   </section>
 
   <section class="section">
     <div class="container section-head">
       <div>
-        <h2>Aturan IF-THEN</h2>
-        <p>Contoh rule yang digunakan sistem.</p>
+        <h2>Logika Forward Chaining</h2>
+        <p>Cara sistem mencocokkan fakta dan menghasilkan rekomendasi.</p>
       </div>
     </div>
-    <div class="container card-grid three">
-      ${rules.slice(0, 6).map(ifThenRuleCard).join("")}
+    <div class="container card-grid three about-grid">
+      <div class="card about-card">
+        <div class="about-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <h3>Fakta Awal</h3>
+        <p>Minat yang dipilih disimpan sebagai fakta dalam knowledge base.</p>
+      </div>
+      <div class="card about-card">
+        <div class="about-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h3>Pencocokan Rule</h3>
+        <p>Kondisi IF dievaluasi, jika terpenuhi maka THEN dieksekusi dan kesimpulan dihasilkan.</p>
+      </div>
+      <div class="card about-card">
+        <div class="about-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
+        <h3>Kesimpulan</h3>
+        <p>Berdasarkan aturan IF-THEN yang terpenuhi dalam knowledge base, sistem menghasilkan rekomendasi jurusan beserta alasannya.</p>
+      </div>
     </div>
   </section>
 
-  <section class="section soft">
+  <section class="section">
     <div class="container section-head">
       <div>
-        <h2>Tabel basis aturan</h2>
-        <p>Daftar rule IF-THEN yang tersedia.</p>
+        <h2>Tabel Basis Aturan</h2>
+        <p>Daftar lengkap rule IF-THEN yang tersedia dalam sistem.</p>
       </div>
     </div>
     <div class="container card table-card">
@@ -996,10 +1018,9 @@ const renderAbout = () =>
         <table>
           <thead>
             <tr>
-          <th>Nama Rule</th>
           <th>IF Minat Terpenuhi</th>
           <th>THEN Rekomendasi</th>
-          <th>Penjelasan</th>
+          <th>Alasan</th>
             </tr>
           </thead>
           <tbody>
@@ -1007,7 +1028,6 @@ const renderAbout = () =>
               .map(
                 (rule) => `
               <tr>
-                <td>${rule.name}</td>
                 <td><div class="chips">${rule.indicators.map((code) => `<span>${byIndicatorCode[code].name}</span>`).join("")}</div></td>
                 <td><strong>${byMajorCode[rule.major].name}</strong></td>
                 <td>${rule.conclusion}</td>
@@ -1022,6 +1042,11 @@ const renderAbout = () =>
   </section>
 `);
 
+const deleteHistory = (id) => {
+  const next = getHistory().filter((item) => item.id !== id);
+  localStorage.setItem(historyKey, JSON.stringify(next));
+};
+
 const renderHistory = () => {
   const history = getHistory();
   renderLayout(`
@@ -1031,12 +1056,28 @@ const renderHistory = () => {
           <h1>Riwayat Test</h1>
           <p>Lihat kembali hasil sebelumnya dan bandingkan perubahan minatmu.</p>
         </div>
-        <button class="btn btn-outline" id="clearHistory" ${history.length ? "" : "disabled"}>Hapus Riwayat</button>
       </div>
-      <div class="container history-list">
+      <div class="container">
         ${
           history.length
-            ? history.map(historyCard).join("")
+            ? `<div class="card table-card">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Nama</th>
+                        <th>Jenjang &amp; Asal</th>
+                        <th>Jurusan Terpilih</th>
+                        <th>Waktu</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${history.map(historyRow).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>`
             : `
           <div class="card empty-state">
             <h2>Belum ada riwayat</h2>
@@ -1047,30 +1088,32 @@ const renderHistory = () => {
       </div>
     </section>
   `);
-
-  document.querySelector("#clearHistory")?.addEventListener("click", () => {
-    if (confirm("Hapus semua riwayat Test?")) {
-      localStorage.removeItem(historyKey);
-      renderHistory();
-    }
-  });
 };
 
-const historyCard = (entry) => {
+const historyRow = (entry) => {
   const topResult = entry.results[0];
   const major = topResult ? byMajorCode[topResult.major] : null;
+  const date = new Date(entry.date);
+  const dateStr = date.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  const initials = entry.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
   return `
-    <article class="card history-card">
-      <div>
-        <strong>${escapeHtml(entry.name)}</strong>
-        <p>${new Date(entry.date).toLocaleString("id-ID")} - ${escapeHtml(entry.level)}${entry.city ? ` - ${escapeHtml(entry.city)}` : ""}</p>
-      </div>
-      <div>
-        <span class="score small">${topResult ? "Jurusan terpilih" : "Belum ada jurusan"}</span>
-        <h3>${major ? major.name : "Belum ada hasil"}</h3>
-      </div>
-      <button class="btn btn-outline" data-history-id="${entry.id}">Buka Hasil</button>
-    </article>
+    <tr>
+      <td>
+        <div class="history-name-cell">
+          <div class="history-avatar"><span>${initials}</span></div>
+          <strong>${escapeHtml(entry.name)}</strong>
+        </div>
+      </td>
+      <td>${escapeHtml(entry.level)}${entry.city ? ` &middot; ${escapeHtml(entry.city)}` : ""}</td>
+      <td><strong>${major ? major.name : "Belum ada hasil"}</strong></td>
+      <td>${dateStr}</td>
+      <td>
+        <div class="history-action-cell">
+          <button class="btn btn-dark btn-sm" data-history-id="${entry.id}">Buka Hasil</button>
+          <button class="btn btn-delete btn-sm" data-delete-id="${entry.id}">Hapus</button>
+        </div>
+      </td>
+    </tr>
   `;
 };
 
@@ -1086,6 +1129,16 @@ const bindHistoryButtons = () => {
           JSON.stringify(entry),
         );
         setRoute("hasil");
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-delete-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (confirm("Hapus riwayat test ini?")) {
+        deleteHistory(button.dataset.deleteId);
+        renderHistory();
+        bindHistoryButtons();
       }
     });
   });
