@@ -43,19 +43,23 @@ const getCampusesForMajor = (majorCode) =>
 
 const evaluate = (selectedCodes) => {
   const selected = new Set(selectedCodes);
+  const THRESHOLD = 3; // minimal 3 dari 4 indikator terpenuhi
   const fulfilledRules = rules
     .map((rule) => {
       const matched = rule.indicators.filter((code) => selected.has(code));
-      const fulfilled = matched.length === rule.indicators.length;
+      const score = matched.length / rule.indicators.length;
+      const fulfilled = matched.length >= THRESHOLD;
 
       return {
         ...rule,
         matched,
+        score,
         fulfilled,
         majorData: byMajorCode[rule.major],
       };
     })
-    .filter((rule) => rule.fulfilled);
+    .filter((rule) => rule.fulfilled)
+    .sort((a, b) => b.score - a.score);
 
   const byMajor = fulfilledRules.reduce((result, rule) => {
     const current =
@@ -65,6 +69,7 @@ const evaluate = (selectedCodes) => {
         majorData: byMajorCode[rule.major],
         matched: [],
         rules: [],
+        bestScore: 0,
       };
 
     current.rules.push({
@@ -74,12 +79,13 @@ const evaluate = (selectedCodes) => {
       indicators: rule.indicators,
     });
     current.matched = [...new Set([...current.matched, ...rule.matched])];
+    if (rule.score > current.bestScore) current.bestScore = rule.score;
     result.set(rule.major, current);
 
     return result;
   }, new Map());
 
-  return [...byMajor.values()];
+  return [...byMajor.values()].sort((a, b) => b.bestScore - a.bestScore);
 };
 
 const setRoute = (route) => {
