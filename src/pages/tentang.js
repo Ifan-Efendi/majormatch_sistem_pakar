@@ -2,6 +2,7 @@ import { rules } from "../data.js";
 import { infoCard } from "../components/cards.js";
 import { renderLayout } from "../components/layout.js";
 import { byIndicatorCode, byMajorCode } from "../utils/catalog.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 export const renderAbout = () =>
   renderLayout(`
@@ -76,9 +77,9 @@ export const renderAbout = () =>
               .map(
                 (rule) => `
               <tr>
-                <td><div class="chips">${rule.indicators.map((code) => `<span>${byIndicatorCode[code].name}</span>`).join("")}</div></td>
-                <td><strong>${byMajorCode[rule.major].name}</strong></td>
-                <td>${rule.conclusion}</td>
+                <td><div class="chips">${rule.indicators.map((code) => `<span>${escapeHtml(byIndicatorCode[code].name)}</span>`).join("")}</div></td>
+                <td><strong>${escapeHtml(byMajorCode[rule.major].name)}</strong></td>
+                <td>${escapeHtml(rule.conclusion)}</td>
               </tr>
             `,
               )

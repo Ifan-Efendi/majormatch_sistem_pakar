@@ -386,6 +386,8 @@ const bindSelectedCount = () => {
   syncCount();
 };
 
+const MIN_SELECTION = 3;
+
 const handleTestSubmit = (event) => {
   event.preventDefault();
   const testForm = event.currentTarget;
@@ -399,12 +401,24 @@ const handleTestSubmit = (event) => {
     return;
   }
 
+  if (selected.length < MIN_SELECTION) {
+    alert(`Pilih minimal ${MIN_SELECTION} pernyataan minat sebelum mengirim jawaban.`);
+    return;
+  }
+
   const submitButton = testForm.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   submitButton.textContent = "Memproses...";
   showLoading();
 
+  const routeAtSubmit = activeRoute();
+
   window.setTimeout(() => {
+    if (activeRoute() !== routeAtSubmit) {
+      hideLoading();
+      return;
+    }
+
     const results = evaluate(selected);
     const entry = {
       id: Date.now().toString(),

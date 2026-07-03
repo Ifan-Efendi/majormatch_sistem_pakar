@@ -1,8 +1,9 @@
-import { majors, rules } from "../data.js";
+import { majors } from "../data.js";
 import { majorCard } from "../components/cards.js";
 import { renderLayout } from "../components/layout.js";
 import { setRoute } from "../services/router.js";
 import { byMajorCode, getCampusesForMajor } from "../utils/catalog.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 export const renderMajors = () =>
   renderLayout(`
@@ -26,7 +27,6 @@ export const renderMajorDetail = (majorCode) => {
     return;
   }
 
-  const relatedRules = rules.filter((rule) => rule.major === majorCode);
   const relatedCampuses = getCampusesForMajor(majorCode);
 
   renderLayout(`
@@ -35,18 +35,18 @@ export const renderMajorDetail = (majorCode) => {
         <article class="card result-card">
           <div class="result-section">
             <span class="result-kicker">Detail Jurusan</span>
-            <strong class="result-major-name">${major.name}</strong>
-            <div class="reason">${major.description}</div>
+            <strong class="result-major-name">${escapeHtml(major.name)}</strong>
+            <div class="reason">${escapeHtml(major.description)}</div>
           </div>
           <div class="result-section">
             <div class="mini-label">Prospek karier</div>
-            <div class="reason">${major.careers}</div>
+            <div class="reason">${escapeHtml(major.careers)}</div>
           </div>
           <div class="result-section">
             <div class="mini-label">Kampus terkait</div>
             <div class="chips result-chips">${relatedCampuses
               .slice(0, 4)
-              .map((campus) => `<span>${campus.name}</span>`)
+              .map((campus) => `<span>${escapeHtml(campus.name)}</span>`)
               .join("")}</div>
           </div>
         </article>

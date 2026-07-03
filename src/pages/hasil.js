@@ -5,8 +5,17 @@ import { getCurrentResult, getHistory } from "../services/storage.js";
 import { byIndicatorCode, byMajorCode } from "../utils/catalog.js";
 import { escapeHtml } from "../utils/escapeHtml.js";
 
+const isValidResult = (result) =>
+  result &&
+  typeof result === "object" &&
+  typeof result.name === "string" &&
+  typeof result.level === "string" &&
+  Array.isArray(result.selected) &&
+  Array.isArray(result.results);
+
 export const renderResult = () => {
-  const result = getCurrentResult() || getHistory()[0];
+  const raw = getCurrentResult() || getHistory()[0];
+  const result = isValidResult(raw) ? raw : null;
 
   if (!result) {
     renderLayout(`
@@ -21,7 +30,9 @@ export const renderResult = () => {
     return;
   }
 
-  const resultRules = result.results.map((item) => ({
+  const resultRules = result.results
+    .filter((item) => item.major && byMajorCode[item.major])
+    .map((item) => ({
     ...item,
     ruleData: rules.find((rule) => rule.code === item.code),
     rules:
@@ -44,22 +55,30 @@ export const renderResult = () => {
   const selectedFactsBlock = (className = "") => `
     <div class="selected-facts ${className}">
       <div class="mini-label">Minat yang kamu pilih</div>
-      <div class="chips result-chips">${result.selected.map((code) => `<span>${byIndicatorCode[code]?.name || code}</span>`).join("")}</div>
+      <div class="chips result-chips">${result.selected.map((code) => `<span>${escapeHtml(byIndicatorCode[code]?.name || code)}</span>`).join("")}</div>
     </div>
   `;
+
+  const totalMajors = resultRules.length;
+  const orderNote = totalMajors > 1
+    ? `<p class="result-order-note">Ditemukan <strong>${totalMajors} jurusan</strong> yang sesuai dengan minatmu. Jurusan ditampilkan berdasarkan tingkat kesesuaian &mdash; <strong>jurusan paling atas adalah yang paling sesuai</strong> dengan pola minat yang kamu pilih.</p>`
+    : totalMajors === 1
+      ? `<p class="result-order-note">Berdasarkan minat yang kamu pilih, ditemukan <strong>1 jurusan</strong> yang paling sesuai.</p>`
+      : "";
 
   renderLayout(`
     <section class="section">
       <div class="container">
         <div class="card result-header">
           <div>
-            <div class="mini-label">Rekomendasi untuk</div>
+            <div class="mini-label">Hasil rekomendasi ditujukan kepada</div>
             <strong class="result-user-name">${escapeHtml(result.name)}</strong>
             <div class="result-meta">
               <span>${escapeHtml(result.level)}</span>
               ${result.city ? `<span>${escapeHtml(result.city)}</span>` : ""}
               <span>${result.selected.length} Minat Dipilih</span>
             </div>
+            ${orderNote}
           </div>
           <a class="btn btn-dark" href="#test">Test Lagi</a>
         </div>
@@ -71,6 +90,8 @@ export const renderResult = () => {
               resultCard(
                 item,
                 index === 0 ? selectedFactsBlock("selected-facts-inline") : "",
+                index,
+                totalMajors,
               ),
             )
             .join("") ||

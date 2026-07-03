@@ -3,12 +3,13 @@ import { byMajorCode } from "../utils/catalog.js";
 
 export const evaluate = (selectedCodes) => {
   const selected = new Set(selectedCodes);
-  const THRESHOLD = 3; // minimal 3 dari 4 indikator terpenuhi
   const fulfilledRules = rules
+    .filter((rule) => Array.isArray(rule.indicators) && rule.indicators.length > 0)
     .map((rule) => {
       const matched = rule.indicators.filter((code) => selected.has(code));
+      const threshold = rule.threshold || Math.ceil(rule.indicators.length * 0.75);
       const score = matched.length / rule.indicators.length;
-      const fulfilled = matched.length >= THRESHOLD;
+      const fulfilled = matched.length >= threshold;
 
       return {
         ...rule,
